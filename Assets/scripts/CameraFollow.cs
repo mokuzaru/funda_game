@@ -6,11 +6,11 @@ public class CameraFollow : MonoBehaviour
 	public Vector2 maxXAndY;		
 	public Vector2 minXAndY;		
 	
-	private Transform player;		
-	
-	void Awake ()
+	private Transform player;
+
+    void Awake ()
 	{
-	
+	    
 		player = GameObject.FindGameObjectWithTag("Player").transform;
 	}
 	

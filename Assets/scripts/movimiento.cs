@@ -4,74 +4,81 @@ using System.Collections;
 public class movimiento : MonoBehaviour
 {
 	[HideInInspector]
-	public bool facingRight = true;				
-	
+	public bool facingRight = true;
 	public float moveForce = 365f;			
 	public float maxSpeed = 1f;	
-	private Animator anim;					
-	
-	
-	void Awake()
+	private Animator anim;
+    public GameObject target;
+    public GameObject piedra;
+    public float fuerza;
+   
+    void Awake()
 	{
+       
 		anim = GetComponent<Animator>();
 		
 	}
 	
-	void Update(){
-		if (Input.GetButtonDown ("Fire1")) {
-			anim.SetBool ("lanzar", true);
-		} else if (Input.GetButtonUp ("Fire1")) {
-			anim.SetBool ("lanzar", false);
-		}
-	}
-	
-	
-	void FixedUpdate ()
-	{
 
-		float h = Input.GetAxisRaw("Horizontal");
-		
+    void lanzamiento(GameObject prefab)
+    {
+        GameObject clone = Instantiate(prefab, target.transform.position, target.transform.rotation) as GameObject;
+        
+        clone.GetComponent<Rigidbody2D>().AddForce(target.transform.up * fuerza);
+    }
 
-		if(Input.touchCount > 0) {
-			Touch t = Input.GetTouch(0);
-			if(t.position.x > Screen.width / 2) {
-				h = 1;
-			} else  {
-				h = -1;
-			}
-		}
+    void FixedUpdate()
+    {
+        if (Input.GetButtonDown("Fire1"))
+        {
+            anim.SetBool("lanzar", true);
+            lanzamiento(piedra);
+        }
+        else if (Input.GetButtonUp("Fire1"))
+        {
+            anim.SetBool("lanzar", false);
+            lanzamiento(piedra);
+        }
+        float h = Input.GetAxisRaw("Horizontal");
 
-		anim.SetFloat ("Speed", Mathf.Abs (h));
 
-		if(h * GetComponent<Rigidbody2D>().velocity.x < maxSpeed)
+        if (Input.touchCount > 0)
+        {
+            Touch t = Input.GetTouch(0);
+            if (t.position.x > Screen.width / 2)
+            {
+                h = 1;
+            }
+            else {
+                h = -1;
+            }
+        }
 
-			GetComponent<Rigidbody2D>().AddForce(Vector2.right * h * moveForce);
-		
+        anim.SetFloat("Speed", Mathf.Abs(h));
 
-		if(Mathf.Abs(GetComponent<Rigidbody2D>().velocity.x) > maxSpeed)
+        if (h * GetComponent<Rigidbody2D>().velocity.x < maxSpeed)
 
-			GetComponent<Rigidbody2D>().velocity = new Vector2(Mathf.Sign(GetComponent<Rigidbody2D>().velocity.x) * maxSpeed, GetComponent<Rigidbody2D>().velocity.y);
-		
+            GetComponent<Rigidbody2D>().AddForce(Vector2.right * h * moveForce);
 
-		if(h > 0 && !facingRight)
 
-			Flip();
+        if (Mathf.Abs(GetComponent<Rigidbody2D>().velocity.x) > maxSpeed)
 
-		else if(h < 0 && facingRight)
+            GetComponent<Rigidbody2D>().velocity = new Vector2(Mathf.Sign(GetComponent<Rigidbody2D>().velocity.x) * maxSpeed, GetComponent<Rigidbody2D>().velocity.y);
 
-			Flip();
-
-		
-	}
-	
-	
-	void Flip ()
-	{
-
-		facingRight = !facingRight;
-		
-
-		Vector3 theScale = transform.localScale;
-		theScale.x *= -1;
-	}
+        if (h < 0)
+        {
+            transform.localScale = new Vector3(-1, 1, 1);
+        }
+        if (h > 0)
+        {
+            transform.localScale = new Vector3(1, 1, 1);
+        }
+    }
+   
+    void OnCollisionEnter2D(Collision2D coll)
+    {
+        if (coll.gameObject.tag == "enemy2")
+            Application.LoadLevel("menu");
+    }
 }
+
